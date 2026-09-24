@@ -430,6 +430,7 @@ table.l3 tbody tr:hover { background: rgba(3,105,161,0.04); }
     <div class="btn-row">
       <button class="btn-scan" id="scan-btn" onclick="scanAllFiles()" disabled>⊙ Scan Files &amp; Detect Funds</button>
       <button class="btn-template" onclick="downloadTemplate()">↓ Download Template</button>
+      <button class="btn-template" id="load-sample-btn" onclick="loadSampleData()" style="background:var(--blue);border-color:var(--blue);">Load Sample Data</button>
       <div class="log-msg" id="scan-log"></div>
     </div>
   </div>
@@ -2091,6 +2092,29 @@ function exportChartExcel() {
 // ═══════════════════════════════════════════════════════════════
 // DOWNLOAD TEMPLATE
 // ═══════════════════════════════════════════════════════════════
+async function loadSampleData() {
+  const btn = document.getElementById('load-sample-btn');
+  const oldText = btn.textContent;
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+  try {
+    const f1 = await fetch('sampledata/BDC_SOI_Input_2026-03-31_10Funds.xlsx').then(r => r.blob());
+    const file1 = new File([f1], 'BDC_SOI_Input_2026-03-31_10Funds.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    document.getElementById('ql-0').value = 'Q1 2026';
+    loadQ(0, file1);
+
+    const f2 = await fetch('sampledata/BDC_SOI_Input_2026-06-30_10Funds.xlsx').then(r => r.blob());
+    const file2 = new File([f2], 'BDC_SOI_Input_2026-06-30_10Funds.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    document.getElementById('ql-1').value = 'Q2 2026';
+    loadQ(1, file2);
+  } catch (err) {
+    setLog('scan-log', 'Failed to load sample data: ' + err.message, true);
+  } finally {
+    btn.textContent = oldText;
+    btn.disabled = false;
+  }
+}
+
 function downloadTemplate() {
   const wb = XLSX.utils.book_new();
   const headers = ['BDC Name','Normalize Name','Industry','Par Amount ($M)','Cost ($M)','Fair Value ($M)'];
